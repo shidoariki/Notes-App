@@ -1,584 +1,765 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Notes App</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: Arial, sans-serif; background: #f5f5f5; padding: 20px; }
-        .container { max-width: 1200px; margin: 0 auto; }
-        
-        /* LOGIN PAGE */
-        #loginPage {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        
-        .login-box {
-            background: white;
-            padding: 40px;
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            width: 100%;
-            max-width: 400px;
-        }
-        
-        .login-box h1 { margin-bottom: 30px; text-align: center; color: #333; }
-        
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 5px; color: #555; font-weight: bold; }
-        .form-group input {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-        }
-        
-        .form-group button {
-            width: 100%;
-            padding: 12px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-        
-        .form-group button:hover { background: #5568d3; }
-        
-        .toggle-form { text-align: center; margin-top: 20px; }
-        .toggle-form a { color: #667eea; cursor: pointer; text-decoration: underline; }
-        
-        .error { color: red; margin-bottom: 15px; }
-        .success { color: green; margin-bottom: 15px; }
-        
-        /* MAIN APP PAGE */
-        #appPage { display: none; }
-        
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-        }
-        
-        .header h1 { color: #333; }
-        .header button { padding: 10px 20px; background: #e74c3c; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        .header button:hover { background: #c0392b; }
-        
-        .content { display: grid; grid-template-columns: 1fr 3fr; gap: 20px; }
-        
-        .sidebar { background: white; padding: 20px; border-radius: 10px; }
-        .main { background: white; padding: 20px; border-radius: 10px; }
-        
-        .sidebar h2 { margin-bottom: 15px; color: #333; }
-        .sidebar input { width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; }
-        .sidebar button { width: 100%; padding: 10px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer; margin-bottom: 20px; }
-        .sidebar button:hover { background: #5568d3; }
-        
-        .category-list { max-height: 300px; overflow-y: auto; }
-        .category-item {
-            padding: 10px;
-            margin: 5px 0;
-            background: #f9f9f9;
-            border-radius: 5px;
-            cursor: pointer;
-            border-left: 4px solid #667eea;
-        }
-        .category-item:hover { background: #efefef; }
-        .category-item.active { background: #e8eaf6; font-weight: bold; }
-        
-        .main h2 { margin-bottom: 20px; color: #333; }
-        
-        .form-group textarea {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            font-size: 14px;
-            font-family: Arial;
-        }
-        
-        .search-filter { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .search-filter input, .search-filter select, .search-filter button {
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        .search-filter button { background: #667eea; color: white; cursor: pointer; }
-        .search-filter button:hover { background: #5568d3; }
-        
-        .notes-list {
-            display: grid;
-            gap: 15px;
-            max-height: 500px;
-            overflow-y: auto;
-        }
-        
-        .note-card {
-            border: 1px solid #ddd;
-            padding: 15px;
-            border-radius: 5px;
-            background: #fafafa;
-        }
-        
-        .note-card h3 { color: #333; margin-bottom: 10px; }
-        .note-card p { color: #666; margin-bottom: 10px; line-height: 1.5; }
-        .note-card .meta { font-size: 12px; color: #999; margin-bottom: 10px; }
-        
-        .note-actions { display: flex; gap: 10px; }
-        .note-actions button {
-            padding: 8px 15px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-        
-        .note-actions .edit { background: #f39c12; color: white; }
-        .note-actions .delete { background: #e74c3c; color: white; }
-        .note-actions button:hover { opacity: 0.8; }
-        
-        .error-message { color: red; padding: 10px; background: #ffe6e6; border-radius: 5px; margin-bottom: 10px; }
-        .success-message { color: green; padding: 10px; background: #e6ffe6; border-radius: 5px; margin-bottom: 10px; }
-    </style>
-</head>
-<body>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: Arial, sans-serif;
+        background: #f5f5f5;
+        padding: 20px;
+      }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
 
-<!-- LOGIN PAGE -->
-<div id="loginPage">
-    <div class="login-box">
+      /* LOGIN PAGE */
+      #loginPage {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      }
+
+      .login-box {
+        background: white;
+        padding: 40px;
+        border-radius: 10px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        width: 100%;
+        max-width: 400px;
+      }
+
+      .login-box h1 {
+        margin-bottom: 30px;
+        text-align: center;
+        color: #333;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        color: #555;
+        font-weight: bold;
+      }
+      .form-group input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+      }
+
+      .form-group button {
+        width: 100%;
+        padding: 12px;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        margin-top: 10px;
+      }
+
+      .form-group button:hover {
+        background: #5568d3;
+      }
+
+      .toggle-form {
+        text-align: center;
+        margin-top: 20px;
+      }
+      .toggle-form a {
+        color: #667eea;
+        cursor: pointer;
+        text-decoration: underline;
+      }
+
+      .error {
+        color: red;
+        margin-bottom: 15px;
+      }
+      .success {
+        color: green;
+        margin-bottom: 15px;
+      }
+
+      /* MAIN APP PAGE */
+      #appPage {
+        display: none;
+      }
+
+      .header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+      }
+
+      .header h1 {
+        color: #333;
+      }
+      .header button {
+        padding: 10px 20px;
+        background: #e74c3c;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      .header button:hover {
+        background: #c0392b;
+      }
+
+      .content {
+        display: grid;
+        grid-template-columns: 1fr 3fr;
+        gap: 20px;
+      }
+
+      .sidebar {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+      }
+      .main {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+      }
+
+      .sidebar h2 {
+        margin-bottom: 15px;
+        color: #333;
+      }
+      .sidebar input {
+        width: 100%;
+        padding: 8px;
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+      .sidebar button {
+        width: 100%;
+        padding: 10px;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-bottom: 20px;
+      }
+      .sidebar button:hover {
+        background: #5568d3;
+      }
+
+      .category-list {
+        max-height: 300px;
+        overflow-y: auto;
+      }
+      .category-item {
+        padding: 10px;
+        margin: 5px 0;
+        background: #f9f9f9;
+        border-radius: 5px;
+        cursor: pointer;
+        border-left: 4px solid #667eea;
+      }
+      .category-item:hover {
+        background: #efefef;
+      }
+      .category-item.active {
+        background: #e8eaf6;
+        font-weight: bold;
+      }
+
+      .main h2 {
+        margin-bottom: 20px;
+        color: #333;
+      }
+
+      .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        font-size: 14px;
+        font-family: Arial;
+      }
+
+      .search-filter {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+      .search-filter input,
+      .search-filter select,
+      .search-filter button {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+      .search-filter button {
+        background: #667eea;
+        color: white;
+        cursor: pointer;
+      }
+      .search-filter button:hover {
+        background: #5568d3;
+      }
+
+      .notes-list {
+        display: grid;
+        gap: 15px;
+        max-height: 500px;
+        overflow-y: auto;
+      }
+
+      .note-card {
+        border: 1px solid #ddd;
+        padding: 15px;
+        border-radius: 5px;
+        background: #fafafa;
+      }
+
+      .note-card h3 {
+        color: #333;
+        margin-bottom: 10px;
+      }
+      .note-card p {
+        color: #666;
+        margin-bottom: 10px;
+        line-height: 1.5;
+      }
+      .note-card .meta {
+        font-size: 12px;
+        color: #999;
+        margin-bottom: 10px;
+      }
+
+      .note-actions {
+        display: flex;
+        gap: 10px;
+      }
+      .note-actions button {
+        padding: 8px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 12px;
+      }
+
+      .note-actions .edit {
+        background: #f39c12;
+        color: white;
+      }
+      .note-actions .delete {
+        background: #e74c3c;
+        color: white;
+      }
+      .note-actions button:hover {
+        opacity: 0.8;
+      }
+
+      .error-message {
+        color: red;
+        padding: 10px;
+        background: #ffe6e6;
+        border-radius: 5px;
+        margin-bottom: 10px;
+      }
+      .success-message {
+        color: green;
+        padding: 10px;
+        background: #e6ffe6;
+        border-radius: 5px;
+        margin-bottom: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- LOGIN PAGE -->
+    <div id="loginPage">
+      <div class="login-box">
         <h1 📝>Notes App</h1>
-        
+
         <!-- LOGIN FORM -->
         <div id="loginForm">
-            <h2>Login</h2>
-            <div id="loginError" class="error"></div>
-            
-            <div class="form-group">
-                <label>Email:</label>
-                <input type="email" id="loginEmail" placeholder="your@email.com">
-            </div>
-            
-            <div class="form-group">
-                <label>Password:</label>
-                <input type="password" id="loginPassword" placeholder="password">
-            </div>
-            
-            <div class="form-group">
-                <button onclick="login()">Login</button>
-            </div>
-            
-            <div class="toggle-form">
-                Don't have an account? <a onclick="showSignup()">Sign up</a>
-            </div>
+          <h2>Login</h2>
+          <div id="loginError" class="error"></div>
+
+          <div class="form-group">
+            <label>Email:</label>
+            <input type="email" id="loginEmail" placeholder="your@email.com" />
+          </div>
+
+          <div class="form-group">
+            <label>Password:</label>
+            <input type="password" id="loginPassword" placeholder="password" />
+          </div>
+
+          <div class="form-group">
+            <button onclick="login()">Login</button>
+          </div>
+
+          <div class="toggle-form">
+            Don't have an account? <a onclick="showSignup()">Sign up</a>
+          </div>
         </div>
-        
+
         <!-- SIGNUP FORM -->
-        <div id="signupForm" style="display: none;">
-            <h2>Sign Up</h2>
-            <div id="signupError" class="error"></div>
-            
-            <div class="form-group">
-                <label>Email:</label>
-                <input type="email" id="signupEmail" placeholder="your@email.com">
-            </div>
-            
-            <div class="form-group">
-                <label>Password:</label>
-                <input type="password" id="signupPassword" placeholder="password">
-            </div>
-            
-            <div class="form-group">
-                <button onclick="signup()">Sign Up</button>
-            </div>
-            
-            <div class="toggle-form">
-                Already have an account? <a onclick="showLogin()">Login</a>
-            </div>
-        </div>
-    </div>
-</div>
+        <div id="signupForm" style="display: none">
+          <h2>Sign Up</h2>
+          <div id="signupError" class="error"></div>
 
-<!-- MAIN APP PAGE -->
-<div id="appPage">
-    <div class="container">
+          <div class="form-group">
+            <label>Email:</label>
+            <input type="email" id="signupEmail" placeholder="your@email.com" />
+          </div>
+
+          <div class="form-group">
+            <label>Password:</label>
+            <input type="password" id="signupPassword" placeholder="password" />
+          </div>
+
+          <div class="form-group">
+            <button onclick="signup()">Sign Up</button>
+          </div>
+
+          <div class="toggle-form">
+            Already have an account? <a onclick="showLogin()">Login</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN APP PAGE -->
+    <div id="appPage">
+      <div class="container">
         <div class="header">
-            <h1>📝 Notes App</h1>
-            <div>
-                <span id="userEmail"></span>
-                <button onclick="logout()">Logout</button>
-            </div>
+          <h1>📝 Notes App</h1>
+          <div>
+            <span id="userEmail"></span>
+            <button onclick="logout()">Logout</button>
+          </div>
         </div>
-        
-        <div class="content">
-            <!-- SIDEBAR - CATEGORIES -->
-            <div class="sidebar">
-                <h2>Categories</h2>
-                <input type="text" id="categoryInput" placeholder="Category name">
-                <button onclick="addCategory()">Add Category</button>
-                
-                <div id="categoriesError" class="error-message" style="display: none;"></div>
-                <div class="category-list" id="categoryList">
-                    <p>Loading...</p>
-                </div>
-            </div>
-            
-            <!-- MAIN - NOTES -->
-            <div class="main">
-                <h2>Notes</h2>
-                
-                <div class="search-filter">
-                    <input type="text" id="searchInput" placeholder="Search notes...">
-                    <select id="categoryFilter">
-                        <option value="">All categories</option>
-                    </select>
-                    <button onclick="filterNotes()">Filter</button>
-                </div>
-                
-                <div id="notesError" class="error-message" style="display: none;"></div>
-                
-                <h3>Add Note</h3>
-                <div class="form-group">
-                    <label>Title:</label>
-                    <input type="text" id="noteTitle" placeholder="Note title">
-                </div>
-                
-                <div class="form-group">
-                    <label>Content:</label>
-                    <textarea id="noteContent" placeholder="Note content" rows="5"></textarea>
-                </div>
-                
-                <div class="form-group">
-                    <label>Category:</label>
-                    <select id="noteCategory">
-                        <option value="">No category</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <button onclick="addNote()">Add Note</button>
-                </div>
-                
-                <h3>Notes</h3>
-                <div class="notes-list" id="notesList">
-                    <p>Loading...</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
-<script>
-    const API_BASE = 'http://localhost:3001';
-    let token = localStorage.getItem('token');
-    let userId = localStorage.getItem('userId');
-    let userEmail = localStorage.getItem('userEmail');
-    
-    // Check if logged in
-    if (token) {
+        <div class="content">
+          <!-- SIDEBAR - CATEGORIES -->
+          <div class="sidebar">
+            <h2>Categories</h2>
+            <input type="text" id="categoryInput" placeholder="Category name" />
+            <button onclick="addCategory()">Add Category</button>
+
+            <div
+              id="categoriesError"
+              class="error-message"
+              style="display: none"
+            ></div>
+            <div class="category-list" id="categoryList">
+              <p>Loading...</p>
+            </div>
+          </div>
+
+          <!-- MAIN - NOTES -->
+          <div class="main">
+            <h2>Notes</h2>
+
+            <div class="search-filter">
+              <input
+                type="text"
+                id="searchInput"
+                placeholder="Search notes..."
+              />
+              <select id="categoryFilter">
+                <option value="">All categories</option>
+              </select>
+              <button onclick="filterNotes()">Filter</button>
+            </div>
+
+            <div
+              id="notesError"
+              class="error-message"
+              style="display: none"
+            ></div>
+
+            <h3>Add Note</h3>
+            <div class="form-group">
+              <label>Title:</label>
+              <input type="text" id="noteTitle" placeholder="Note title" />
+            </div>
+
+            <div class="form-group">
+              <label>Content:</label>
+              <textarea
+                id="noteContent"
+                placeholder="Note content"
+                rows="5"
+              ></textarea>
+            </div>
+
+            <div class="form-group">
+              <label>Category:</label>
+              <select id="noteCategory">
+                <option value="">No category</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <button onclick="addNote()">Add Note</button>
+            </div>
+
+            <h3>Notes</h3>
+            <div class="notes-list" id="notesList">
+              <p>Loading...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const API_BASE = 'https://notes-app-production-5966.up.railway.app';
+      let token = localStorage.getItem("token");
+      let userId = localStorage.getItem("userId");
+      let userEmail = localStorage.getItem("userEmail");
+
+      // Check if logged in
+      if (token) {
         showApp();
-    }
-    
-    // ============ LOGIN / SIGNUP ============
-    function showLogin() {
-        document.getElementById('loginForm').style.display = 'block';
-        document.getElementById('signupForm').style.display = 'none';
-    }
-    
-    function showSignup() {
-        document.getElementById('loginForm').style.display = 'none';
-        document.getElementById('signupForm').style.display = 'block';
-    }
-    
-    function login() {
-        const email = document.getElementById('loginEmail').value;
-        const password = document.getElementById('loginPassword').value;
-        
+      }
+
+      // ============ LOGIN / SIGNUP ============
+      function showLogin() {
+        document.getElementById("loginForm").style.display = "block";
+        document.getElementById("signupForm").style.display = "none";
+      }
+
+      function showSignup() {
+        document.getElementById("loginForm").style.display = "none";
+        document.getElementById("signupForm").style.display = "block";
+      }
+
+      function login() {
+        const email = document.getElementById("loginEmail").value;
+        const password = document.getElementById("loginPassword").value;
+
         if (!email || !password) {
-            showError('loginError', 'Email and password required');
-            return;
+          showError("loginError", "Email and password required");
+          return;
         }
-        
+
         fetch(`${API_BASE}/auth/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
         })
-        .then(r => r.json())
-        .then(data => {
+          .then((r) => r.json())
+          .then((data) => {
             if (data.error) {
-                showError('loginError', data.error);
-                return;
+              showError("loginError", data.error);
+              return;
             }
-            
+
             // Save token
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('userId', data.user.id);
-            localStorage.setItem('userEmail', data.user.email);
-            
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("userId", data.user.id);
+            localStorage.setItem("userEmail", data.user.email);
+
             token = data.token;
             userId = data.user.id;
             userEmail = data.user.email;
-            
+
             showApp();
-        })
-        .catch(e => showError('loginError', e.message));
-    }
-    
-    function signup() {
-        const email = document.getElementById('signupEmail').value;
-        const password = document.getElementById('signupPassword').value;
-        
+          })
+          .catch((e) => showError("loginError", e.message));
+      }
+
+      function signup() {
+        const email = document.getElementById("signupEmail").value;
+        const password = document.getElementById("signupPassword").value;
+
         if (!email || !password) {
-            showError('signupError', 'Email and password required');
-            return;
+          showError("signupError", "Email and password required");
+          return;
         }
-        
+
         fetch(`${API_BASE}/auth/signup`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password }),
         })
-        .then(r => r.json())
-        .then(data => {
+          .then((r) => r.json())
+          .then((data) => {
             if (data.error) {
-                showError('signupError', data.error);
-                return;
+              showError("signupError", data.error);
+              return;
             }
-            
+
             // Save token
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('userId', data.user.id);
-            localStorage.setItem('userEmail', data.user.email);
-            
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("userId", data.user.id);
+            localStorage.setItem("userEmail", data.user.email);
+
             token = data.token;
             userId = data.user.id;
             userEmail = data.user.email;
-            
+
             showApp();
-        })
-        .catch(e => showError('signupError', e.message));
-    }
-    
-    function logout() {
-        localStorage.removeItem('token');
-        localStorage.removeItem('userId');
-        localStorage.removeItem('userEmail');
+          })
+          .catch((e) => showError("signupError", e.message));
+      }
+
+      function logout() {
+        localStorage.removeItem("token");
+        localStorage.removeItem("userId");
+        localStorage.removeItem("userEmail");
         token = null;
         userId = null;
         userEmail = null;
-        
-        document.getElementById('loginPage').style.display = 'flex';
-        document.getElementById('appPage').style.display = 'none';
-        
-        document.getElementById('loginEmail').value = '';
-        document.getElementById('loginPassword').value = '';
-        document.getElementById('loginError').textContent = '';
-    }
-    
-    // ============ MAIN APP ============
-    function showApp() {
-        document.getElementById('loginPage').style.display = 'none';
-        document.getElementById('appPage').style.display = 'block';
-        document.getElementById('userEmail').textContent = userEmail;
-        
+
+        document.getElementById("loginPage").style.display = "flex";
+        document.getElementById("appPage").style.display = "none";
+
+        document.getElementById("loginEmail").value = "";
+        document.getElementById("loginPassword").value = "";
+        document.getElementById("loginError").textContent = "";
+      }
+
+      // ============ MAIN APP ============
+      function showApp() {
+        document.getElementById("loginPage").style.display = "none";
+        document.getElementById("appPage").style.display = "block";
+        document.getElementById("userEmail").textContent = userEmail;
+
         loadCategories();
         loadNotes();
-    }
-    
-    // ============ CATEGORIES ============
-    function loadCategories() {
+      }
+
+      // ============ CATEGORIES ============
+      function loadCategories() {
         fetch(`${API_BASE}/api/categories`, {
-            headers: { 'Authorization': `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         })
-        .then(r => r.json())
-        .then(data => {
+          .then((r) => r.json())
+          .then((data) => {
             if (data.error) {
-                showError('categoriesError', data.error);
-                return;
+              showError("categoriesError", data.error);
+              return;
             }
-            
-            const categoryList = document.getElementById('categoryList');
-            const categoryFilter = document.getElementById('categoryFilter');
-            const noteCategory = document.getElementById('noteCategory');
-            
-            categoryList.innerHTML = data.map(cat => 
-                `<div class="category-item" onclick="filterByCategory('${cat.name}')">${cat.name}</div>`
-            ).join('');
-            
+
+            const categoryList = document.getElementById("categoryList");
+            const categoryFilter = document.getElementById("categoryFilter");
+            const noteCategory = document.getElementById("noteCategory");
+
+            categoryList.innerHTML = data
+              .map(
+                (cat) =>
+                  `<div class="category-item" onclick="filterByCategory('${cat.name}')">${cat.name}</div>`
+              )
+              .join("");
+
             if (data.length === 0) {
-                categoryList.innerHTML = '<p>No categories yet</p>';
+              categoryList.innerHTML = "<p>No categories yet</p>";
             }
-            
-            categoryFilter.innerHTML = '<option value="">All categories</option>' + 
-                data.map(cat => `<option value="${cat.name}">${cat.name}</option>`).join('');
-            
-            noteCategory.innerHTML = '<option value="">No category</option>' + 
-                data.map(cat => `<option value="${cat.name}">${cat.name}</option>`).join('');
-        })
-        .catch(e => showError('categoriesError', e.message));
-    }
-    
-    function addCategory() {
-        const name = document.getElementById('categoryInput').value;
-        
+
+            categoryFilter.innerHTML =
+              '<option value="">All categories</option>' +
+              data
+                .map(
+                  (cat) => `<option value="${cat.name}">${cat.name}</option>`
+                )
+                .join("");
+
+            noteCategory.innerHTML =
+              '<option value="">No category</option>' +
+              data
+                .map(
+                  (cat) => `<option value="${cat.name}">${cat.name}</option>`
+                )
+                .join("");
+          })
+          .catch((e) => showError("categoriesError", e.message));
+      }
+
+      function addCategory() {
+        const name = document.getElementById("categoryInput").value;
+
         if (!name) {
-            alert('Enter category name');
-            return;
+          alert("Enter category name");
+          return;
         }
-        
+
         fetch(`${API_BASE}/api/categories`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ name })
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ name }),
         })
-        .then(r => r.json())
-        .then(data => {
+          .then((r) => r.json())
+          .then((data) => {
             if (data.error) {
-                alert('Error: ' + data.error);
-                return;
+              alert("Error: " + data.error);
+              return;
             }
-            
-            document.getElementById('categoryInput').value = '';
+
+            document.getElementById("categoryInput").value = "";
             loadCategories();
-        })
-        .catch(e => alert('Error: ' + e.message));
-    }
-    
-    // ============ NOTES ============
-    function loadNotes() {
-        const search = document.getElementById('searchInput').value;
-        const category = document.getElementById('categoryFilter').value;
-        
+          })
+          .catch((e) => alert("Error: " + e.message));
+      }
+
+      // ============ NOTES ============
+      function loadNotes() {
+        const search = document.getElementById("searchInput").value;
+        const category = document.getElementById("categoryFilter").value;
+
         let url = `${API_BASE}/api/notes`;
         const params = [];
         if (search) params.push(`search=${encodeURIComponent(search)}`);
         if (category) params.push(`category=${encodeURIComponent(category)}`);
-        if (params.length) url += '?' + params.join('&');
-        
+        if (params.length) url += "?" + params.join("&");
+
         fetch(url, {
-            headers: { 'Authorization': `Bearer ${token}` }
+          headers: { Authorization: `Bearer ${token}` },
         })
-        .then(r => r.json())
-        .then(data => {
+          .then((r) => r.json())
+          .then((data) => {
             if (data.error) {
-                showError('notesError', data.error);
-                return;
+              showError("notesError", data.error);
+              return;
             }
-            
-            const notesList = document.getElementById('notesList');
-            
+
+            const notesList = document.getElementById("notesList");
+
             if (!Array.isArray(data)) {
-                showError('notesError', 'Invalid response from server');
-                return;
+              showError("notesError", "Invalid response from server");
+              return;
             }
-            
-            notesList.innerHTML = data.map(note => `
+
+            notesList.innerHTML = data
+              .map(
+                (note) => `
                 <div class="note-card">
                     <h3>${note.title}</h3>
                     <p>${note.content}</p>
                     <div class="meta">
-                        ${note.category ? `Category: ${note.category}` : 'No category'}
+                        ${
+                          note.category
+                            ? `Category: ${note.category}`
+                            : "No category"
+                        }
                         • ${new Date(note.createdAt).toLocaleDateString()}
                     </div>
                     <div class="note-actions">
-                        <button class="delete" onclick="deleteNote(${note.id})">Delete</button>
+                        <button class="delete" onclick="deleteNote(${
+                          note.id
+                        })">Delete</button>
                     </div>
                 </div>
-            `).join('');
-            
+            `
+              )
+              .join("");
+
             if (data.length === 0) {
-                notesList.innerHTML = '<p>No notes yet. Create one!</p>';
+              notesList.innerHTML = "<p>No notes yet. Create one!</p>";
             }
-        })
-        .catch(e => showError('notesError', e.message));
-    }
-    
-    function addNote() {
-        const title = document.getElementById('noteTitle').value;
-        const content = document.getElementById('noteContent').value;
-        const category = document.getElementById('noteCategory').value;
-        
+          })
+          .catch((e) => showError("notesError", e.message));
+      }
+
+      function addNote() {
+        const title = document.getElementById("noteTitle").value;
+        const content = document.getElementById("noteContent").value;
+        const category = document.getElementById("noteCategory").value;
+
         if (!title || !content) {
-            alert('Title and content required');
-            return;
+          alert("Title and content required");
+          return;
         }
-        
+
         fetch(`${API_BASE}/api/notes`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ title, content, category: category || undefined })
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            title,
+            content,
+            category: category || undefined,
+          }),
         })
-        .then(r => r.json())
-        .then(data => {
+          .then((r) => r.json())
+          .then((data) => {
             if (data.error) {
-                alert('Error: ' + data.error);
-                return;
+              alert("Error: " + data.error);
+              return;
             }
-            
-            document.getElementById('noteTitle').value = '';
-            document.getElementById('noteContent').value = '';
-            document.getElementById('noteCategory').value = '';
-            
+
+            document.getElementById("noteTitle").value = "";
+            document.getElementById("noteContent").value = "";
+            document.getElementById("noteCategory").value = "";
+
             loadNotes();
             loadCategories();
-        })
-        .catch(e => alert('Error: ' + e.message));
-    }
-    
-    function deleteNote(id) {
-        if (!confirm('Delete this note?')) return;
-        
+          })
+          .catch((e) => alert("Error: " + e.message));
+      }
+
+      function deleteNote(id) {
+        if (!confirm("Delete this note?")) return;
+
         fetch(`${API_BASE}/api/notes/${id}`, {
-            method: 'DELETE',
-            headers: { 'Authorization': `Bearer ${token}` }
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` },
         })
-        .then(r => r.json())
-        .then(data => {
+          .then((r) => r.json())
+          .then((data) => {
             if (data.error) {
-                alert('Error: ' + data.error);
-                return;
+              alert("Error: " + data.error);
+              return;
             }
             loadNotes();
-        })
-        .catch(e => alert('Error: ' + e.message));
-    }
-    
-    function filterNotes() {
+          })
+          .catch((e) => alert("Error: " + e.message));
+      }
+
+      function filterNotes() {
         loadNotes();
-    }
-    
-    function filterByCategory(category) {
-        document.getElementById('categoryFilter').value = category;
+      }
+
+      function filterByCategory(category) {
+        document.getElementById("categoryFilter").value = category;
         loadNotes();
-    }
-    
-    // ============ HELPERS ============
-    function showError(elementId, message) {
+      }
+
+      // ============ HELPERS ============
+      function showError(elementId, message) {
         const el = document.getElementById(elementId);
         if (el) {
-            el.textContent = message;
-            el.style.display = 'block';
+          el.textContent = message;
+          el.style.display = "block";
         }
-    }
-</script>
-
-</body>
+      }
+    </script>
+  </body>
 </html>

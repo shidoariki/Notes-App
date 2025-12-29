@@ -428,6 +428,32 @@
             <h3>Notes</h3>
             <div class="notes-list" id="notesList">
               <p>Loading...</p>
+              <!-- FILE UPLOAD SECTION - ADD THIS -->
+              <div class="form-group">
+                <label>Attach File (Optional):</label>
+                <input
+                  type="file"
+                  id="fileInput"
+                  accept="image/*,.pdf"
+                  style="display: none"
+                />
+                <button
+                  type="button"
+                  onclick="document.getElementById('fileInput').click()"
+                  style="
+                    background: #10b981;
+                    color: white;
+                    border: none;
+                    padding: 10px 16px;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    width: 100%;
+                  "
+                >
+                  📎 Attach Image or PDF
+                </button>
+                <div id="filePreview" style="margin-top: 10px"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -435,7 +461,7 @@
     </div>
 
     <script>
-      const API_BASE = 'https://notes-app-production-5966.up.railway.app';
+      const API_BASE = "https://notes-app-production-5966.up.railway.app";
       let token = localStorage.getItem("token");
       let userId = localStorage.getItem("userId");
       let userEmail = localStorage.getItem("userEmail");
@@ -628,63 +654,43 @@
       }
 
       // ============ NOTES ============
-      function loadNotes() {
-        const search = document.getElementById("searchInput").value;
-        const category = document.getElementById("categoryFilter").value;
-
-        let url = `${API_BASE}/api/notes`;
-        const params = [];
-        if (search) params.push(`search=${encodeURIComponent(search)}`);
-        if (category) params.push(`category=${encodeURIComponent(category)}`);
-        if (params.length) url += "?" + params.join("&");
-
-        fetch(url, {
-          headers: { Authorization: `Bearer ${token}` },
-        })
-          .then((r) => r.json())
-          .then((data) => {
-            if (data.error) {
-              showError("notesError", data.error);
-              return;
+      notesList.innerHTML = data
+        .map(
+          (note) => `
+      <div class="note-card">
+        <h3>${note.title}</h3>
+        <p>${note.content}</p>
+        ${
+          note.fileUrl
+            ? `
+          <div style="margin: 10px 0; padding: 10px; background: #f0f9ff; border-radius: 6px; border-left: 4px solid #0ea5e9;">
+            ${
+              note.fileName
+                ? `<strong>📎 ${note.fileName}</strong>`
+                : "📎 File attached"
             }
-
-            const notesList = document.getElementById("notesList");
-
-            if (!Array.isArray(data)) {
-              showError("notesError", "Invalid response from server");
-              return;
+            ${
+              note.fileUrl.includes(".pdf")
+                ? `<a href="${note.fileUrl}" target="_blank" style="color: #0ea5e9; margin-left: 10px;">View PDF</a>`
+                : `<img src="${note.fileUrl}" style="max-width: 100px; max-height: 100px; margin-top: 5px; border-radius: 4px;">`
             }
-
-            notesList.innerHTML = data
-              .map(
-                (note) => `
-                <div class="note-card">
-                    <h3>${note.title}</h3>
-                    <p>${note.content}</p>
-                    <div class="meta">
-                        ${
-                          note.category
-                            ? `Category: ${note.category}`
-                            : "No category"
-                        }
-                        • ${new Date(note.createdAt).toLocaleDateString()}
-                    </div>
-                    <div class="note-actions">
-                        <button class="delete" onclick="deleteNote(${
-                          note.id
-                        })">Delete</button>
-                    </div>
-                </div>
-            `
-              )
-              .join("");
-
-            if (data.length === 0) {
-              notesList.innerHTML = "<p>No notes yet. Create one!</p>";
-            }
-          })
-          .catch((e) => showError("notesError", e.message));
-      }
+          </div>
+        `
+            : ""
+        }
+        <div class="meta">
+          ${note.category ? `Category: ${note.category}` : "No category"}
+          • ${new Date(note.createdAt).toLocaleDateString()}
+        </div>
+        <div class="note-actions">
+          <button class="delete" onclick="deleteNote('${
+            note.id
+          }')">Delete</button>
+        </div>
+      </div>
+    `
+        )
+        .join("");
 
       function addNote() {
         const title = document.getElementById("noteTitle").value;
@@ -759,6 +765,132 @@
           el.textContent = message;
           el.style.display = "block";
         }
+      }
+      // ============ FILE UPLOADS ============
+      let currentEditingNoteId = null;
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const fileInput = document.getElementById("fileInput");
+        const filePreview = document.getElementById("filePreview");
+
+        if (fileInput) {
+          fileInput.addEventListener("change", async function (e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (!currentEditingNoteId) {
+              alert("Save note first, then attach file");
+              return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", file);
+
+            try {
+              const response = await fetch(
+                `${API_BASE}/api/notes/${currentEditingNoteId}/upload`,
+                {
+                  method: "POST",
+                  headers: { Authorization: `Bearer ${token}` },
+                  body: formData,
+                }
+              );
+
+              const data = await response.json();
+
+              if (data.success) {
+                if (file.type.startsWith("image/")) {
+                  filePreview.innerHTML = `
+              <div style="border: 2px solid #10b981; padding: 15px; border-radius: 8px; background: #f0fdf4; margin-top: 10px;">
+                <img src="${data.fileUrl}" style="max-width: 200px; max-height: 200px; border-radius: 6px;">
+                <br><small style="color: #059669;">✅ ${data.fileName}</small>
+                <br><button onclick="removeFile('${currentEditingNoteId}')" 
+                           style="background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-top: 8px;">
+                  ❌ Remove File
+                </button>
+              </div>
+            `;
+                } else {
+                  filePreview.innerHTML = `
+              <div style="border: 2px solid #10b981; padding: 15px; border-radius: 8px; background: #f0fdf4; margin-top: 10px;">
+                <a href="${data.fileUrl}" target="_blank" style="color: #059669; font-weight: bold; text-decoration: none;">
+                  📄 ${data.fileName}
+                </a>
+                <br><button onclick="removeFile('${currentEditingNoteId}')" 
+                           style="background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; margin-top: 8px;">
+                  ❌ Remove File
+                </button>
+              </div>
+            `;
+                }
+              } else {
+                alert("Upload failed: " + (data.error || "Unknown error"));
+              }
+            } catch (error) {
+              console.error("Upload error:", error);
+              alert("Upload failed");
+            }
+          });
+        }
+      });
+
+      async function removeFile(noteId) {
+        try {
+          const response = await fetch(`${API_BASE}/api/notes/${noteId}/file`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          if (response.ok) {
+            document.getElementById("filePreview").innerHTML = "";
+          }
+        } catch (error) {
+          console.error("Remove failed:", error);
+        }
+      }
+
+      // Update addNote to track current note ID
+      function addNote() {
+        const title = document.getElementById("noteTitle").value;
+        const content = document.getElementById("noteContent").value;
+        const category = document.getElementById("noteCategory").value;
+
+        if (!title || !content) {
+          alert("Title and content required");
+          return;
+        }
+
+        fetch(`${API_BASE}/api/notes`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            title,
+            content,
+            category: category || undefined,
+          }),
+        })
+          .then((r) => r.json())
+          .then((data) => {
+            if (data.error) {
+              alert("Error: " + data.error);
+              return;
+            }
+
+            // Set current note ID for file uploads
+            currentEditingNoteId = data.id;
+
+            document.getElementById("noteTitle").value = "";
+            document.getElementById("noteContent").value = "";
+            document.getElementById("noteCategory").value = "";
+            document.getElementById("filePreview").innerHTML = "";
+
+            loadNotes();
+            loadCategories();
+          })
+          .catch((e) => alert("Error: " + e.message));
       }
     </script>
   </body>

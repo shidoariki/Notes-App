@@ -8,33 +8,33 @@ datasource db {
 }
 
 model User {
-  id    Int    @id @default(autoincrement())
-  email String @unique
-  password String
-  createdAt DateTime @default(now())
-  notes Note[]
+  id         Int       @id @default(autoincrement())
+  email      String    @unique
+  password   String
+  createdAt  DateTime  @default(now())
+  notes      Note[]
   categories Category[]
 }
 
 model Category {
-  id    Int    @id @default(autoincrement())
-  name  String
+  id     Int    @id @default(autoincrement())
+  name   String
   userId Int
-  user  User @relation(fields: [userId], references: [id])
-  notes Note[]
+  user   User   @relation(fields: [userId], references: [id])
+  notes  Note[]
   @@unique([name, userId])
 }
-model Note {
-  id        String   @id @default(cuid())
-  title     String
-  content   String
-  fileUrl   String?  // ADD THIS
-  fileName  String?  // ADD THIS
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  categoryId String?
-  category  Category? @relation(fields: [categoryId], references: [id])
-}
 
+model Note {
+  id         String   @id @default(cuid())
+  title      String
+  content    String
+  fileUrl    String?
+  fileName   String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  userId     Int      // FIXED: Int to match User.id
+  user       User     @relation(fields: [userId], references: [id])
+  categoryId Int?     // FIXED: Int? to match Category.id
+  category   Category? @relation(fields: [categoryId], references: [id])
+}

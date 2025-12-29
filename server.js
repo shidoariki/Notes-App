@@ -43,8 +43,6 @@ app.use("/auth", authRoutes);
 // Protected API routes
 app.use("/api/notes", notesRoutes);
 app.use("/api/categories", categoriesRoutes);
-const uploadRoutes = require("./routes/upload");
-app.use("/api", uploadRoutes);
 
 // ========================
 // Error Handling

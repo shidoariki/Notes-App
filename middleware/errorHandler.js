@@ -4,7 +4,7 @@ module.exports = (err, req, res, next) => {
   if (err.code === "P2002") {
     return res.status(400).json({
       error: "Unique constraint violation",
-      field: err.meta?.target?. || "unknown",
+      field: err.meta?.target?.[0] || "unknown",
     });
   }
 

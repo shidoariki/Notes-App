@@ -1,16 +1,12 @@
-const express = require('express');
-const categoryController = require('../controllers/categoryController');
-const authMiddleware = require('../middleware/auth');
+const express = require("express");
+const authMiddleware = require("../middleware/auth");
+const categoryController = require("../controllers/categoryController");
 
 const router = express.Router();
 
-// All category routes require authentication
 router.use(authMiddleware);
 
-// GET all categories for user
-router.get('/', categoryController.getCategories);
-
-// POST create new category
-router.post('/', categoryController.createCategory);
+router.get("/", categoryController.getCategories);
+router.post("/", categoryController.createCategory);
 
 module.exports = router;

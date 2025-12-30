@@ -1,212 +1,105 @@
-const { PrismaClient } = require('@prisma/client');
-
+const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
-/**
- * GET /api/notes
- * Get all notes for authenticated user with optional search and category filter
- */
-exports.getNotes = async (req, res, next) => {
+exports.getNotes = async (req, res) => {
   try {
-    const { search, category } = req.query;
+    const userId = req.user.userId;
+    const { search, categoryId } = req.query;
 
-    const where = { userId: req.userId };
+    let where = { userId };
 
-    // Add search filter if provided
-    if (search && String(search).trim() !== '') {
-      const term = String(search);
+    if (search) {
       where.OR = [
-        { title: { contains: term, mode: 'insensitive' } },
-        { content: { contains: term, mode: 'insensitive' } },
+        { title: { contains: search, mode: "insensitive" } },
+        { content: { contains: search, mode: "insensitive" } },
       ];
     }
 
-    // Add category filter if provided
-    if (category && String(category).trim() !== '') {
-      where.category = { name: String(category) };
+    if (categoryId && categoryId !== "") {
+      where.categoryId = parseInt(categoryId);
     }
 
     const notes = await prisma.note.findMany({
       where,
       include: { category: true },
-      orderBy: { id: 'desc' },
+      orderBy: { createdAt: "desc" },
     });
 
-    // Map response format
-    const mapped = notes.map((n) => ({
-      id: n.id,
-      title: n.title,
-      content: n.content,
-      createdAt: n.createdAt,
-      category: n.category ? n.category.name : null,
-    }));
-
-    res.json(mapped);
-  } catch (e) {
-    console.error('Get notes error:', e);
-    next(e);
+    res.json(notes);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch notes" });
   }
 };
 
-/**
- * POST /api/notes
- * Create new note for authenticated user
- */
-exports.createNote = async (req, res, next) => {
+exports.createNote = async (req, res) => {
   try {
-    const { title, content, category } = req.body;
+    const userId = req.user.userId;
+    const { title, content, categoryId } = req.body;
 
-    // Validation
-    if (!title || !title.trim()) {
-      return res.status(400).json({ error: 'Title is required' });
-    }
-    if (!content || !content.trim()) {
-      return res.status(400).json({ error: 'Content is required' });
+    if (!title || !content) {
+      return res.status(400).json({ error: "Title and content required" });
     }
 
-    let categoryId = null;
-
-    // Handle category assignment/creation
-    if (category && category.trim() !== '') {
-      const cat = await prisma.category.upsert({
-        where: {
-          name_userId: {
-            name: category.trim(),
-            userId: req.userId,
-          },
-        },
-        update: {},
-        create: { name: category.trim(), userId: req.userId },
-      });
-      categoryId = cat.id;
-    }
-
-    // Create note
     const note = await prisma.note.create({
       data: {
-        title: title.trim(),
-        content: content.trim(),
-        userId: req.userId,
-        categoryId,
+        title,
+        content,
+        userId,
+        categoryId: categoryId ? parseInt(categoryId) : null,
       },
       include: { category: true },
     });
 
-    res.status(201).json({
-      id: note.id,
-      title: note.title,
-      content: note.content,
-      createdAt: note.createdAt,
-      category: note.category ? note.category.name : null,
-    });
-  } catch (e) {
-    console.error('Create note error:', e);
-    next(e);
+    res.status(201).json(note);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to create note" });
   }
 };
 
-/**
- * PUT /api/notes/:id
- * Update note for authenticated user (only owner can update)
- */
-exports.updateNote = async (req, res, next) => {
+exports.updateNote = async (req, res) => {
   try {
-    const id = Number(req.params.id);
-    const { title, content, category } = req.body;
+    const userId = req.user.userId;
+    const { id } = req.params;
+    const { title, content, categoryId } = req.body;
 
-    // Validation
-    if (Number.isNaN(id)) {
-      return res.status(400).json({ error: 'Invalid id' });
-    }
-
-    // Verify note belongs to user
     const note = await prisma.note.findUnique({ where: { id } });
-    if (!note || note.userId !== req.userId) {
-      return res.status(403).json({ error: 'Not authorized' });
+    if (!note || note.userId !== userId) {
+      return res.status(403).json({ error: "Not authorized" });
     }
 
-    let categoryId = undefined;
-
-    // Handle category assignment/creation
-    if (category !== undefined) {
-      if (!category || !category.trim()) {
-        categoryId = null;
-      } else {
-        const cat = await prisma.category.upsert({
-          where: {
-            name_userId: {
-              name: category.trim(),
-              userId: req.userId,
-            },
-          },
-          update: {},
-          create: { name: category.trim(), userId: req.userId },
-        });
-        categoryId = cat.id;
-      }
-    }
-
-    // Update note
     const updated = await prisma.note.update({
       where: { id },
       data: {
-        title: title !== undefined ? title.trim() : undefined,
-        content: content !== undefined ? content.trim() : undefined,
-        categoryId,
+        title: title || note.title,
+        content: content || note.content,
+        categoryId: categoryId ? parseInt(categoryId) : note.categoryId,
       },
       include: { category: true },
     });
 
-    res.json({
-      id: updated.id,
-      title: updated.title,
-      content: updated.content,
-      createdAt: updated.createdAt,
-      category: updated.category ? updated.category.name : null,
-    });
-  } catch (e) {
-    console.error('Update note error:', e);
-    next(e);
+    res.json(updated);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to update note" });
   }
 };
 
-/**
- * DELETE /api/notes/:id
- * Delete note for authenticated user (only owner can delete)
- */
-exports.deleteNote = async (req, res, next) => {
+exports.deleteNote = async (req, res) => {
   try {
-    const id = Number(req.params.id);
+    const userId = req.user.userId;
+    const { id } = req.params;
 
-    // Validation
-    if (Number.isNaN(id)) {
-      return res.status(400).json({ error: 'Invalid id' });
-    }
-
-    // Verify note belongs to user
     const note = await prisma.note.findUnique({ where: { id } });
-    if (!note || note.userId !== req.userId) {
-      return res.status(403).json({ error: 'Not authorized' });
+    if (!note || note.userId !== userId) {
+      return res.status(403).json({ error: "Not authorized" });
     }
 
-    // Delete note
-    const deleted = await prisma.note.delete({
-      where: { id },
-      include: { category: true },
-    });
-
-    res.json({
-      message: 'Note deleted successfully',
-      deleted: {
-        id: deleted.id,
-        title: deleted.title,
-        content: deleted.content,
-        createdAt: deleted.createdAt,
-        category: deleted.category ? deleted.category.name : null,
-      },
-    });
-  } catch (e) {
-    console.error('Delete note error:', e);
-    next(e);
+    await prisma.note.delete({ where: { id } });
+    res.json({ success: true });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to delete note" });
   }
 };

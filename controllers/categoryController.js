@@ -1,53 +1,47 @@
-const { PrismaClient } = require('@prisma/client');
-
+const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
-/**
- * GET /api/categories
- * Get all categories for authenticated user
- */
-exports.getCategories = async (req, res, next) => {
+exports.getCategories = async (req, res) => {
   try {
+    const userId = req.user.userId;
+
     const categories = await prisma.category.findMany({
-      where: { userId: req.userId },
-      orderBy: { id: 'asc' },
+      where: { userId },
+      include: {
+        _count: { select: { notes: true } },
+      },
+      orderBy: { name: "asc" },
     });
+
     res.json(categories);
-  } catch (e) {
-    console.error('Get categories error:', e);
-    next(e);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch categories" });
   }
 };
 
-/**
- * POST /api/categories
- * Create new category for authenticated user
- */
-exports.createCategory = async (req, res, next) => {
+exports.createCategory = async (req, res) => {
   try {
+    const userId = req.user.userId;
     const { name } = req.body;
 
-    // Validation
-    if (!name || !name.trim()) {
-      return res.status(400).json({ error: 'Category name is required' });
+    if (!name) {
+      return res.status(400).json({ error: "Category name required" });
     }
 
-    // Check if category already exists for this user
-    const existing = await prisma.category.findFirst({
-      where: { name: name.trim(), userId: req.userId },
+    const category = await prisma.category.create({
+      data: {
+        name,
+        userId,
+      },
     });
-    if (existing) {
-      return res.status(400).json({ error: 'Category already exists' });
+
+    res.status(201).json(category);
+  } catch (error) {
+    if (error.code === "P2002") {
+      return res.status(400).json({ error: "Category already exists" });
     }
-
-    // Create category
-    const cat = await prisma.category.create({
-      data: { name: name.trim(), userId: req.userId },
-    });
-
-    res.status(201).json(cat);
-  } catch (e) {
-    console.error('Create category error:', e);
-    next(e);
+    console.error(error);
+    res.status(500).json({ error: "Failed to create category" });
   }
 };

@@ -1,34 +1,26 @@
-/**
- * Centralized Error Handler Middleware
- * Catches all errors and returns consistent JSON response
- */
 module.exports = (err, req, res, next) => {
-  console.error('Error:', err.message);
+  console.error("Error:", err.message);
 
-  // Prisma validation errors
-  if (err.code === 'P2002') {
+  if (err.code === "P2002") {
     return res.status(400).json({
-      error: 'Unique constraint violation',
-      field: err.meta?.target?.[0] || 'unknown',
+      error: "Unique constraint violation",
+      field: err.meta?.target?. || "unknown",
     });
   }
 
-  // Prisma not found errors
-  if (err.code === 'P2025') {
-    return res.status(404).json({ error: 'Resource not found' });
+  if (err.code === "P2025") {
+    return res.status(404).json({ error: "Resource not found" });
   }
 
-  // JWT errors
-  if (err.name === 'JsonWebTokenError') {
-    return res.status(401).json({ error: 'Invalid token' });
+  if (err.name === "JsonWebTokenError") {
+    return res.status(401).json({ error: "Invalid token" });
   }
 
-  if (err.name === 'TokenExpiredError') {
-    return res.status(401).json({ error: 'Token expired' });
+  if (err.name === "TokenExpiredError") {
+    return res.status(401).json({ error: "Token expired" });
   }
 
-  // Default error response
   res.status(err.status || 500).json({
-    error: err.message || 'Internal server error',
+    error: err.message || "Internal server error",
   });
 };

@@ -227,7 +227,7 @@
       .notes-list {
         display: grid;
         gap: 15px;
-        max-height: 500px;
+        max-height: 600px;
         overflow-y: auto;
       }
 
@@ -253,6 +253,23 @@
         margin-bottom: 10px;
       }
 
+      .note-file {
+        margin: 10px 0;
+        padding: 10px;
+        background: #e8f4f8;
+        border-radius: 5px;
+        font-size: 12px;
+      }
+
+      .note-file a {
+        color: #667eea;
+        text-decoration: none;
+      }
+
+      .note-file a:hover {
+        text-decoration: underline;
+      }
+
       .note-actions {
         display: flex;
         gap: 10px;
@@ -273,6 +290,10 @@
         background: #e74c3c;
         color: white;
       }
+      .note-actions .upload {
+        background: #10b981;
+        color: white;
+      }
       .note-actions button:hover {
         opacity: 0.8;
       }
@@ -291,13 +312,17 @@
         border-radius: 5px;
         margin-bottom: 10px;
       }
+
+      .file-input-hidden {
+        display: none;
+      }
     </style>
   </head>
   <body>
     <!-- LOGIN PAGE -->
     <div id="loginPage">
       <div class="login-box">
-        <h1 📝>Notes App</h1>
+        <h1>📝 Notes App</h1>
 
         <!-- LOGIN FORM -->
         <div id="loginForm">
@@ -355,7 +380,7 @@
         <div class="header">
           <h1>📝 Notes App</h1>
           <div>
-            <span id="userEmail"></span>
+            <span id="userEmail" style="margin-right: 20px;"></span>
             <button onclick="logout()">Logout</button>
           </div>
         </div>
@@ -426,39 +451,21 @@
             </div>
 
             <h3>Notes</h3>
-            <div class="notes-list" id="notesList">
+            <div id="notesList" class="notes-list">
               <p>Loading...</p>
-              <!-- FILE UPLOAD SECTION - ADD THIS -->
-              <div class="form-group">
-                <label>Attach File (Optional):</label>
-                <input
-                  type="file"
-                  id="fileInput"
-                  accept="image/*,.pdf"
-                  style="display: none"
-                />
-                <button
-                  type="button"
-                  onclick="document.getElementById('fileInput').click()"
-                  style="
-                    background: #10b981;
-                    color: white;
-                    border: none;
-                    padding: 10px 16px;
-                    border-radius: 5px;
-                    cursor: pointer;
-                    width: 100%;
-                  "
-                >
-                  📎 Attach Image or PDF
-                </button>
-                <div id="filePreview" style="margin-top: 10px"></div>
-              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+
+    <!-- File input for upload (hidden) -->
+    <input
+      type="file"
+      id="hiddenFileInput"
+      class="file-input-hidden"
+      accept="image/*,.pdf"
+    />
 
     <script>
       const API_BASE = "https://notes-app-production-5966.up.railway.app";
